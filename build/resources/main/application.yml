@@ -7,7 +7,7 @@ spring:
 
   datasource:
     platform: mysql
-    url: jdbc:mysql://umc-serverstudy.c4c6drbqdp7s.ap-northeast-2.rds.amazonaws.com :3306/Week7?autoReconnect=true
+    url: jdbc:mysql://umc-serverstudy.c4c6drbqdp7s.ap-northeast-2.rds.amazonaws.com :3306/UdemyServer?autoReconnect=true
     username: taehyun
     password: xogus921
     driver-class-name: com.mysql.cj.jdbc.Driver # mysql 8버전

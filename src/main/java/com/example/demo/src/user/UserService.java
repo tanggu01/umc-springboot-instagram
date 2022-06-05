@@ -70,24 +70,13 @@ public class UserService {
         }
     }
 
-    //유저 삭제 API /삭제하고 싶은 유저가 없다면 (?) -- 실패
-//    public DeleteUserRes deleteUserByIdx(int userIdx) {
-//        Iterator<User> iterator = users.iterator();
-//
-//        while(iterator.hasNext()){
-//            User user = iterator.next();
-//
-//            if(user.getUserIdx() == userIdx){
-//                iterator.remove();
-//                return user;
-//            }
-//        }
-//        return null;
-//    }
-
-    public void deleteUser(DeleteUserReq deleteUserReq) throws BaseException {
+    // Week 7 Challenge 유저삭제 [PATCH]
+    public void deleteUser(int userIdx) throws BaseException {
+        if (userProvider.checkUserExist(userIdx) == 0) {
+            throw new BaseException(USERS_EMPTY_USER_ID);
+        }
         try {
-            int result = userDao.deleteUser(deleteUserReq); //return result 안하나?
+            int result = userDao.deleteUser(userIdx);
             if (result == 0) {  //쿼리문 에러일시 0 반환 .
                 throw new BaseException(DELETE_FAIL_USER);
             }
@@ -97,8 +86,10 @@ public class UserService {
     }
 
 
-    //유저삭제 API 2번째
     public void deleteUserbyIdx(int userIdx) throws BaseException {
+        if (userProvider.checkUser(userIdx) == 0) { //있으면 1, 없으면 0 리턴
+            throw new BaseException(DELETE_USER_NOTEXIST);
+        }
         try {
             int result = userDao.deleteUserbyIdx(userIdx);
 

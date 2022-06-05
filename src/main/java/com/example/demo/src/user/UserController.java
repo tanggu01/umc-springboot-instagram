@@ -31,14 +31,14 @@ public class UserController {
         this.jwtService = jwtService;
     }
 
-    /**
-     * 회원 조회 API
+
+    /** Week 7
+     * 회원 조회 API   //Query String - @RequestParam
      * [GET] /users
      * 이메일 검색 조회 API
      * [GET] /users? Email=
      * @return BaseResponse<GetUserRes>
      */
-    //Query String - @RequestParam
     @ResponseBody
     @GetMapping("") // (GET) 127.0.0.1:9000/users
     public BaseResponse<GetUserRes> getUsers(@RequestParam(required = true) String Email) { //<GetUserRes> model: 응답값.
@@ -59,12 +59,14 @@ public class UserController {
         }
     }
 
+
+    //유저 조회 API
     @ResponseBody
     @GetMapping("/{userIdx}") // (GET) 127.0.0.1:9000/users/:userIdx
     public BaseResponse<GetUserRes> getUserByIdx(@PathVariable("userIdx") int userIdx) {
         try {
-            GetUserRes getUsersRes = userProvider.getUsersByIdx(userIdx);
-            return new BaseResponse<>(getUsersRes);
+            GetUserRes getUserRes = userProvider.getUsersByIdx(userIdx);
+            return new BaseResponse<>(getUserRes);
         } catch (BaseException exception) {
             return new BaseResponse<>((exception.getStatus()));
         }
@@ -73,7 +75,6 @@ public class UserController {
     /**
      * 회원가입 API
      * [POST] /users
-     *
      * @return BaseResponse<PostUserRes>
      */
     // Body
@@ -123,19 +124,15 @@ public class UserController {
         }
     }
 
-    //유저 삭제 API: status 만 inactive 로 바꿔주기. PATCH? 위에와 비슷하게 하는데 왜 Delete는 Res 가 있고 위에꺼는 없는지.
+    //Week 7 Challenge - 유저 삭제 API: status 만 inactive 로 바꿔주기. [PATCH]
+    // 삭제이기때문에 데이터를 받아올필요가 없다 - 모델 만들필요 x
     @ResponseBody
-    @PatchMapping("/{userIdx}/status") // (PATCH) 127.0.0.1:9000/users/:userIdx
-    public BaseResponse<String> deleteUser(@PathVariable("userIdx") int userIdx, @RequestBody DeleteUserReq user) { //클라이언트에게 보내줄정보
+    @PatchMapping("/{userIdx}/status")
+    public BaseResponse<String> deleteUser(@PathVariable("userIdx") int userIdx) { //클라이언트에게 보내줄정보: model 말고 문자열
         try {
-            DeleteUserReq deleteUserReq = new DeleteUserReq(userIdx, user.getStatus());
-//            if (deleteUserReq.getStatus().equals("Inactive")) {
-//                return new BaseResponse<>(DELETE_USER_NOTEXIST);
-//            }
-            userService.deleteUser(deleteUserReq);
-
-            //이부분 두줄은 무슨 뜻?
-            String result = " 유저가 삭제되었습니다.";
+            //뭘 리턴하는게 아니라 그냥 postService에 갔다가 오류 안나면 result 출력하는 로직
+            userService.deleteUser(userIdx);
+            String result = "유저가 삭제되었습니다.";
             return new BaseResponse<>(result); //이 Result는 어디에서 온거지?
 
         } catch (BaseException exception) {
@@ -143,23 +140,32 @@ public class UserController {
         }
     }
 
+    //유저삭제 2 - [DELETE]
+    @ResponseBody
+    @DeleteMapping("/{userIdx}") // (DELETE) 127.0.0.1:9000/users/:userIdx
+    public BaseResponse<String> deleteUserByIdx(@PathVariable("userIdx") int userIdx) {
+        try {
+            userService.deleteUserbyIdx(userIdx); //delete니까 service
+            String result = " 유저가 삭제되었습니다."; //리턴 <String>
+            return new BaseResponse<>(result);
+        } catch (BaseException exception) {
+            return new BaseResponse<>((exception.getStatus()));
+        }
+    }
 
-    //유저삭제 2
-//    @ResponseBody
-//    @DeleteMapping("/{userIdx}/status") // (PATCH) 127.0.0.1:9000/users/:userIdx
-//    public BaseResponse<DeleteUserRes> deleteUserbyIdx(@PathVariable("userIdx") int userIdx) { //<String?> 안에 뭐가 들어가야하는지??
-//        try {
-//
-//            userService.deleteUserbyIdx(userIdx);
-//            return new BaseResponse<>(DELETE_USER_NOTEXIST);
-//
-//            //3
-////            DeleteUserRes deleteUserRes = userService.deleteUserbyIdx(userIdx);
-////            return new BaseResponse<>(deleteUserRes);
-//
-//        } catch (BaseException exception) {
-//            return new BaseResponse<>((exception.getStatus()));
-//        }
-//    }
+    //Week 8
+    //유저 피드 조회 API
+    @ResponseBody
+    @GetMapping("/{userIdx}/feed") // (GET) 127.0.0.1:9000/users
+    public BaseResponse<GetUserFeedRes> getUsersFeed(@PathVariable("userIdx") int userIdx) { //<GetUserRes> model: 응답값.
+        //Model에서는 필요한 요청값/응답값 형식을 정리해놓는다. 어떠한 형태/어떠한 데이터를 출력할건지/클라에게 전달할건지 정의를 해주는곳
+        try {
+            GetUserFeedRes getUserFeedRes = userProvider.retriveUserFeed(userIdx,userIdx);
+            return new BaseResponse<>(getUserFeedRes);
+        } catch (BaseException exception) {
+            return new BaseResponse<>((exception.getStatus()));
+        }
+    }
+
 
 }
